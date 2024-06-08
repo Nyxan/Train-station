@@ -43,8 +43,8 @@ class TrainType(models.Model):
 
 class Train(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    cargo_num = models.IntegerField(max_length=50)
-    places_in_cargo = models.IntegerField(max_length=100)
+    cargo_num = models.IntegerField()
+    places_in_cargo = models.IntegerField()
     train_type = models.ForeignKey(TrainType, on_delete=models.CASCADE)
 
     @property
@@ -64,7 +64,7 @@ class Crew(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return f'{self.full_name}'
 
     class Meta:
         unique_together = (('first_name', 'last_name'),)
@@ -79,7 +79,10 @@ class Journey(models.Model):
 
     @property
     def travel_duration(self):
-        return self.arrival_time - self.departure_time
+        duration = self.arrival_time - self.departure_time
+        days = duration.days
+        hours, remainder = divmod(duration.seconds, 3600)
+        return f"{days} days, {hours} hours"
 
     @property
     def available_seats(self):
