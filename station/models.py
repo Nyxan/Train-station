@@ -1,7 +1,11 @@
+import os
+import uuid
+
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import UniqueConstraint
+from django.utils.text import slugify
 from rest_framework.exceptions import ValidationError
 
 
@@ -42,11 +46,19 @@ class TrainType(models.Model):
         return self.name
 
 
+def train_image_file_path(instance, filename):
+    _, extension = os.path.splitext(filename)
+    filename = f"{slugify(instance.name)}-{uuid.uuid4()}{extension}"
+
+    return os.path.join("uploads/movies/", filename)
+
+
 class Train(models.Model):
     name = models.CharField(max_length=100, unique=True)
     cargo_num = models.IntegerField()
     places_in_cargo = models.IntegerField()
     train_type = models.ForeignKey(TrainType, on_delete=models.CASCADE)
+    image = models.ImageField(null=True, upload_to=train_image_file_path)
 
     @property
     def total_capacity(self):
