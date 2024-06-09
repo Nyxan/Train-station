@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import UniqueConstraint
+from rest_framework.exceptions import ValidationError
 
 
 class Station(models.Model):
@@ -84,11 +85,6 @@ class Journey(models.Model):
         hours, remainder = divmod(duration.seconds, 3600)
         return f"{days} days, {hours} hours"
 
-    @property
-    def available_seats(self):
-        booked_seats = Ticket.objects.filter(journey=self).aggregate(models.Sum('seat'))['seat__sum'] or 0
-        return self.train.total_capacity - booked_seats
-
     def __str__(self):
         return f'Journey on {self.departure_time} from {self.route}'
 
@@ -113,30 +109,45 @@ class Order(models.Model):
 class Ticket(models.Model):
     cargo = models.IntegerField()
     seat = models.IntegerField()
-    journey = models.ForeignKey(Journey, on_delete=models.CASCADE)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name="tickets")
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="tickets")
 
     class Meta:
         constraints = [
-            UniqueConstraint(fields=['journey', 'cargo', 'seat'], name='journey_seat__unique'),
+            UniqueConstraint(fields=['journey', 'cargo', 'seat'], name='journey_seat_unique'),
         ]
 
+    @staticmethod
+    def validate_ticket(cargo, seat, train, error_to_raise):
+        for ticket_attr_value, ticket_attr_name, train_attr_name in [
+            (cargo, "cargo", "cargo_num"),
+            (seat, "seat", "places_in_cargo"),
+        ]:
+            count_attrs = getattr(train, train_attr_name)
+            if not (1 <= ticket_attr_value <= count_attrs):
+                raise error_to_raise(
+                    {
+                        ticket_attr_name: f"{ticket_attr_name} "
+                        f"number must be in available range: "
+                        f"(1, {train_attr_name}): "
+                        f"(1, {count_attrs})"
+                    }
+                )
+
     def clean(self):
-        if not (1 <= self.seat <= self.journey.train.places_in_cargo):
-            raise ValueError({
-                "seat": f"seat must be in range [1, self.trip.bus.num_seats"
-            })
-        if not (1 <= self.cargo <= self.journey.train.cargo_num):
-            raise ValueError({
-                "seat": f"cargo must be in range [1, self.trip.bus.num_seats"
-            })
+        Ticket.validate_ticket(
+            self.cargo,
+            self.seat,
+            self.journey.train,
+            ValidationError,
+        )
 
     def save(
-            self,
-            force_insert=False,
-            force_update=False,
-            using=None,
-            update_fields=None,
+        self,
+        force_insert=False,
+        force_update=False,
+        using=None,
+        update_fields=None,
     ):
         self.full_clean()
         return super(Ticket, self).save(
