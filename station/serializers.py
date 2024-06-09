@@ -63,6 +63,12 @@ class TrainListSerializer(TrainSerializer):
     )
 
 
+class TrainImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Train
+        fields = ['id', 'image']
+
+
 class TrainRetrieveSerializer(TrainSerializer):
     train_type = serializers.SlugRelatedField(
         read_only=True,
@@ -137,7 +143,7 @@ class TickerRetrieveSerializer(TicketSerializer):
 
     class Meta:
         model = Ticket
-        fields = ("id", "cargo", "seat", "journey", "order", "ticket_taken")
+        fields = ("id", "cargo", "seat", "journey", "order")
 
     def get_journey(self, obj):
         return str(obj.journey)
