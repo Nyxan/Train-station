@@ -1,7 +1,9 @@
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 
 from station.models import Station, Route, TrainType, Train, Crew, Journey, Order, Ticket
+from station.permission import IsAdminOrIfAuthenticatedReadOnly
 from station.serializers import StationSerializer, RouteSerializer, TrainTypeSerializer, TrainSerializer, \
     CrewSerializer, \
     JourneySerializer, OrderSerializer, TicketSerializer, JourneyListSerializer, TrainListSerializer, \
@@ -12,11 +14,12 @@ from station.serializers import StationSerializer, RouteSerializer, TrainTypeSer
 class StationViewSet(viewsets.ModelViewSet):
     queryset = Station.objects.all()
     serializer_class = StationSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
-
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
     def get_serializer_class(self):
         if self.action == 'list':
             return RouteListSerializer
@@ -34,10 +37,12 @@ class RouteViewSet(viewsets.ModelViewSet):
 class TrainTypeViewSet(viewsets.ModelViewSet):
     queryset = TrainType.objects.all()
     serializer_class = TrainTypeSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class TrainViewSet(viewsets.ModelViewSet):
     queryset = Train.objects.all()
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     @staticmethod
     def _params_to_ints(param):
@@ -64,10 +69,12 @@ class TrainViewSet(viewsets.ModelViewSet):
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class JourneyViewSet(viewsets.ModelViewSet):
     queryset = Journey.objects.all()
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
         queryset = self.queryset
@@ -86,6 +93,7 @@ class JourneyViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
@@ -108,6 +116,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
         serializer = self.serializer_class
