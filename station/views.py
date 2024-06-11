@@ -1,6 +1,6 @@
+from drf_spectacular.utils import OpenApiParameter, OpenApiExample, extend_schema
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
@@ -10,7 +10,7 @@ from station.serializers import StationSerializer, RouteSerializer, TrainTypeSer
     CrewSerializer, \
     JourneySerializer, OrderSerializer, TicketSerializer, JourneyListSerializer, TrainListSerializer, \
     TrainRetrieveSerializer, JourneyRetrieveSerializer, RouteListSerializer, RouteRetrieveSerializer, \
-    OrderListSerializer, TickerRetrieveSerializer, TicketListSerializer
+    OrderListSerializer, TickerRetrieveSerializer, TicketListSerializer, TrainImageSerializer
 
 
 class StationViewSet(viewsets.ModelViewSet):
@@ -55,6 +55,8 @@ class TrainViewSet(viewsets.ModelViewSet):
             return TrainListSerializer
         elif self.action == 'retrieve':
             return TrainRetrieveSerializer
+        elif self.action == "upload_image":
+            return TrainImageSerializer
         return TrainSerializer
 
     def get_queryset(self):
@@ -81,8 +83,41 @@ class TrainViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "name",
+                description="Filtering by name (ex. ?name='train1')",
+                required=False,
+                type=str,
+                examples=[
+                    OpenApiExample(name="Example 1", value="train2"),
+                    OpenApiExample(name="Example 2", value="train3"),
+                ],
+            ),
+            OpenApiParameter(
+                "train_types",
+                description="Filtering by train_types id (ex. ?train_type=1,2)",
+                type={"type": "array", "items": {"type": "number"}},
+                examples=[
+                    OpenApiExample(name="Example 1", value="1"),
+                    OpenApiExample(name="Example 2", value="2"),
+                ],
+            ),
+            OpenApiParameter(
+                "crews",
+                description="Filtering by crew id (ex. ?crews=1,2)",
+                type={"type": "array", "items": {"type": "number"}},
+                examples=[
+                    OpenApiExample(name="Example 1", value="3"),
+                    OpenApiExample(name="Example 2", value="2"),
+                ],
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        """Endpoint for listing movies"""
+        return super().list(request, *args, **kwargs)
 
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
