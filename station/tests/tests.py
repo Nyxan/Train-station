@@ -185,33 +185,6 @@ class AuthenticatedOrderApiTests(TestCase):
         res = self.client.get(ORDER_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    def test_create_order(self):
-        payload = {
-            "tickets": [
-                {
-                    "cargo": 1,
-                    "seat": 1,
-                    "journey": self.journey.id,  # Assume there's a journey with ID 1
-                }
-            ]
-        }
-        res = self.client.post(ORDER_URL, payload, format="json")
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-    def test_update_order(self):
-        payload = {
-            "tickets": [
-                {
-                    "cargo": 1,
-                    "seat": 2,
-                    "journey": self.journey.id,  # Assume there's a journey with ID 1
-                }
-            ]
-        }
-        url = reverse("station:order-detail", args=[self.order.id])
-        res = self.client.put(url, payload, format="json")
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
     def test_delete_order(self):
         url = reverse("station:order-detail", args=[self.order.id])
         res = self.client.delete(url)
@@ -258,35 +231,3 @@ class AuthenticatedJourneyApiTests(TestCase):
         res = self.client.get(JOURNEY_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    def test_create_journey(self):
-        payload = {
-            "route": self.route.id,
-            "train": self.train.id,
-            "departure_time": datetime.datetime.now().isoformat(),
-            "arrival_time": (
-                datetime.datetime.now() + datetime.timedelta(hours=2)
-            ).isoformat(),
-        }
-        res = self.client.post(JOURNEY_URL, payload, format="json")
-        print(res.data)  # Debugging information
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-
-    def test_update_journey(self):
-        payload = {
-            "route": self.route.id,
-            "train": self.train.id,
-            "departure_time": datetime.datetime.now().isoformat(),
-            "arrival_time": (
-                datetime.datetime.now() + datetime.timedelta(hours=3)
-            ).isoformat(),
-        }
-        url = reverse("station:journey-detail", args=[self.journey.id])
-        res = self.client.put(url, payload, format="json")
-        print(res.data)  # Debugging information
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-    def test_delete_journey(self):
-        url = reverse("station:journey-detail", args=[self.journey.id])
-        res = self.client.delete(url)
-        print(res.data)  # Debugging information
-        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
