@@ -1,6 +1,15 @@
 from django.contrib import admin
 
-from station.models import Route, Ticket, Train, TrainType, Station, Crew, Order, Journey
+from station.models import (
+    Route,
+    Ticket,
+    Train,
+    TrainType,
+    Station,
+    Crew,
+    Order,
+    Journey,
+)
 
 
 class TicketInline(admin.TabularInline):

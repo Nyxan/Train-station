@@ -18,25 +18,29 @@ class Station(models.Model):
         return self.name
 
     class Meta:
-        unique_together = (('latitude', 'longitude'),)
-        ordering = ('name',)
-        verbose_name = 'Station'
-        verbose_name_plural = 'Stations'
+        unique_together = (("latitude", "longitude"),)
+        ordering = ("name",)
+        verbose_name = "Station"
+        verbose_name_plural = "Stations"
 
 
 class Route(models.Model):
-    source = models.ForeignKey(Station, related_name='source_routes', on_delete=models.CASCADE)
-    destination = models.ForeignKey(Station, related_name='destination_routes', on_delete=models.CASCADE)
+    source = models.ForeignKey(
+        Station, related_name="source_routes", on_delete=models.CASCADE
+    )
+    destination = models.ForeignKey(
+        Station, related_name="destination_routes", on_delete=models.CASCADE
+    )
     distance = models.IntegerField()
 
     def __str__(self):
-        return f'{self.source} to {self.destination}'
+        return f"{self.source} to {self.destination}"
 
     class Meta:
-        unique_together = (('source', 'destination'),)
-        ordering = ('source', 'destination')
-        verbose_name = 'Route'
-        verbose_name_plural = 'Routes'
+        unique_together = (("source", "destination"),)
+        ordering = ("source", "destination")
+        verbose_name = "Route"
+        verbose_name_plural = "Routes"
 
 
 class TrainType(models.Model):
@@ -77,10 +81,10 @@ class Crew(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
-        return f'{self.full_name}'
+        return f"{self.full_name}"
 
     class Meta:
-        unique_together = (('first_name', 'last_name'),)
+        unique_together = (("first_name", "last_name"),)
 
 
 class Journey(models.Model):
@@ -88,7 +92,7 @@ class Journey(models.Model):
     train = models.ForeignKey(Train, on_delete=models.CASCADE)
     departure_time = models.DateTimeField()
     arrival_time = models.DateTimeField()
-    crew = models.ManyToManyField(Crew, related_name='journeys')
+    crew = models.ManyToManyField(Crew, related_name="journeys")
 
     @property
     def travel_duration(self):
@@ -98,12 +102,12 @@ class Journey(models.Model):
         return f"{days} days, {hours} hours"
 
     def __str__(self):
-        return f'Journey on {self.departure_time} from {self.route}'
+        return f"Journey on {self.departure_time} from {self.route}"
 
     class Meta:
         indexes = [
-            models.Index(fields=['route', 'train']),
-            models.Index(fields=['departure_time', 'arrival_time']),
+            models.Index(fields=["route", "train"]),
+            models.Index(fields=["departure_time", "arrival_time"]),
         ]
 
 
@@ -112,21 +116,25 @@ class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.user} {self.created_at}'
+        return f"{self.user} {self.created_at}"
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
 
 class Ticket(models.Model):
     cargo = models.IntegerField()
     seat = models.IntegerField()
-    journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name="tickets")
+    journey = models.ForeignKey(
+        Journey, on_delete=models.CASCADE, related_name="tickets"
+    )
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="tickets")
 
     class Meta:
         constraints = [
-            UniqueConstraint(fields=['journey', 'cargo', 'seat'], name='journey_seat_unique'),
+            UniqueConstraint(
+                fields=["journey", "cargo", "seat"], name="journey_seat_unique"
+            ),
         ]
 
     @staticmethod
@@ -167,5 +175,4 @@ class Ticket(models.Model):
         )
 
     def __str__(self):
-        return f'{self.journey} {self.cargo} {self.seat}'
-
+        return f"{self.journey} {self.cargo} {self.seat}"

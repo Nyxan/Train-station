@@ -8,23 +8,23 @@ from .models import Station, Route, TrainType, Train, Crew, Journey, Order, Tick
 class StationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Station
-        fields = '__all__'
+        fields = "__all__"
 
 
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
-        fields = '__all__'
+        fields = "__all__"
 
 
 class RouteListSerializer(RouteSerializer):
     source = serializers.SlugRelatedField(
         read_only=True,
-        slug_field='name',
+        slug_field="name",
     )
     destination = serializers.SlugRelatedField(
         read_only=True,
-        slug_field='name',
+        slug_field="name",
     )
 
 
@@ -36,7 +36,7 @@ class RouteRetrieveSerializer(RouteSerializer):
 class TrainTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrainType
-        fields = '__all__'
+        fields = "__all__"
 
 
 class CrewSerializer(serializers.ModelSerializer):
@@ -50,30 +50,23 @@ class CrewSerializer(serializers.ModelSerializer):
 class TrainSerializer(serializers.ModelSerializer):
     total_capacity = serializers.ReadOnlyField()
 
-
     class Meta:
         model = Train
-        fields = '__all__'
+        fields = "__all__"
 
 
 class TrainListSerializer(TrainSerializer):
-    train_type = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='name'
-    )
+    train_type = serializers.SlugRelatedField(read_only=True, slug_field="name")
 
 
 class TrainImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Train
-        fields = ['id', 'image']
+        fields = ["id", "image"]
 
 
 class TrainRetrieveSerializer(TrainSerializer):
-    train_type = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='name'
-    )
+    train_type = serializers.SlugRelatedField(read_only=True, slug_field="name")
 
 
 class JourneySerializer(serializers.ModelSerializer):
@@ -81,18 +74,27 @@ class JourneySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Journey
-        fields = '__all__'
+        fields = "__all__"
 
 
 class JourneyListSerializer(serializers.ModelSerializer):
-    train_name = serializers.CharField(source='train.name', read_only=True)
-    source = serializers.CharField(source='route.source.name', read_only=True)
-    destination = serializers.CharField(source='route.destination.name', read_only=True)
+    train_name = serializers.CharField(source="train.name", read_only=True)
+    source = serializers.CharField(source="route.source.name", read_only=True)
+    destination = serializers.CharField(source="route.destination.name", read_only=True)
     available_tickets = serializers.SerializerMethodField()
 
     class Meta:
         model = Journey
-        fields = ['id', 'train_name', 'source', 'destination', 'departure_time', 'arrival_time', 'travel_duration', 'available_tickets']
+        fields = [
+            "id",
+            "train_name",
+            "source",
+            "destination",
+            "departure_time",
+            "arrival_time",
+            "travel_duration",
+            "available_tickets",
+        ]
 
     def get_available_tickets(self, obj):
         booked_tickets = Ticket.objects.filter(journey=obj).count()
@@ -170,4 +172,3 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class OrderListSerializer(OrderSerializer):
     tickets = TicketListSerializer(many=True, read_only=True)
-
