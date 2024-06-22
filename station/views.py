@@ -14,7 +14,6 @@ from station.models import (
     Order,
     Ticket,
 )
-from station.permission import IsAdminOrIfAuthenticatedReadOnly
 from station.serializers import (
     StationSerializer,
     RouteSerializer,
@@ -40,12 +39,10 @@ from station.serializers import (
 class StationViewSet(viewsets.ModelViewSet):
     queryset = Station.objects.all()
     serializer_class = StationSerializer
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -64,12 +61,10 @@ class RouteViewSet(viewsets.ModelViewSet):
 class TrainTypeViewSet(viewsets.ModelViewSet):
     queryset = TrainType.objects.all()
     serializer_class = TrainTypeSerializer
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class TrainViewSet(viewsets.ModelViewSet):
     queryset = Train.objects.all()
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     @staticmethod
     def _params_to_ints(param):
@@ -148,12 +143,10 @@ class TrainViewSet(viewsets.ModelViewSet):
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class JourneyViewSet(viewsets.ModelViewSet):
     queryset = Journey.objects.all()
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
         queryset = self.queryset
