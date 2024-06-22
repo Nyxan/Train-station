@@ -2,7 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from .models import Station, Route, TrainType, Train, Crew, Journey, Order, Ticket
+from station.models import Station, Route, TrainType, Train, Crew, Journey, Order, Ticket
 
 
 class StationSerializer(serializers.ModelSerializer):
@@ -108,7 +108,6 @@ class JourneyRetrieveSerializer(JourneySerializer):
 
 
 class TicketSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Ticket
         fields = ("id", "cargo", "seat", "journey", "order")
@@ -124,7 +123,7 @@ class TicketSerializer(serializers.ModelSerializer):
         return data
 
 
-class TicketListSerializer(TicketSerializer):
+class TicketListSerializer(serializers.ModelSerializer):
     journey = serializers.SerializerMethodField()
     order = serializers.SerializerMethodField()
 
