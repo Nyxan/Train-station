@@ -19,9 +19,9 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = "django-insecure-lyhsn#olqvcj9k*s7$4+c@&_e^y6cm-r8g)e#73r$y&3&me-@9"
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
-DEBUG = False
+DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = []
 
@@ -137,6 +137,10 @@ REST_FRAMEWORK = {
         "anon": "50/minute",
         "user": "100/minute",
     },
+    "DEFAULT_PERMISSION_CLASSES": (
+        "station.permission.IsAdminOrIfAuthenticatedReadOnly",
+    )
+
 }
 
 SPECTACULAR_SETTINGS = {
