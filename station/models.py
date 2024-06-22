@@ -3,7 +3,6 @@ import uuid
 
 from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User
 from django.db.models import UniqueConstraint
 from django.utils.text import slugify
 from rest_framework.exceptions import ValidationError
@@ -83,9 +82,6 @@ class Crew(models.Model):
     def __str__(self):
         return f"{self.full_name}"
 
-    class Meta:
-        unique_together = (("first_name", "last_name"),)
-
 
 class Journey(models.Model):
     route = models.ForeignKey(Route, on_delete=models.CASCADE)
@@ -113,7 +109,7 @@ class Journey(models.Model):
 
 class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")
 
     def __str__(self):
         return f"{self.user} {self.created_at}"
